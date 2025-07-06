@@ -1,4 +1,5 @@
 const dotenv=require('dotenv');
+const cookieParser=require("cookie-parser")
 const express=require('express');
 const userRoutes=require('./routes/UserRoutes');
 const orgRoutes=require('./routes/OrgRoutes');
@@ -20,7 +21,7 @@ app.use(cors({
 
 
 app.use('/api/v1/user',userRoutes);
-app.use('/api/v1/post',orgRoutes);
+app.use('/api/v1/org',orgRoutes);
 
 app.listen(PORT,()=>{
     console.log(`Server is running on port ${PORT}`);

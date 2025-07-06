@@ -30,6 +30,12 @@ const userSchema=new mongoose.Schema({
     profileImage:{
         type:String,
     },
+     token:{
+        type: String
+    },
+    resetPasswordExpires:{
+        type: Date
+    },
    
    additinalDetails:{
     type:mongoose.Schema.Types.ObjectId,

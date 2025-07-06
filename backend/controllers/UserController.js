@@ -1,7 +1,8 @@
-const userModel=require('../models/UserModal');
+const userModel=require('../models/userModal');
 const jwt=require("jsonwebtoken")
-const bcrypt=require("bcryptjs")
-
+const bcrypt =require("bcrypt")
+const userAddDetailsModel=require("../models/AdditionalDetails")
+const HackathonModel=require("../models/hackathonModal")
 
 const signup=async(req,res)=>{
     try{
@@ -88,4 +89,126 @@ const login=async(req,res)=>{
 
 }
 
-module.exports={signup,login};
+const getUserProfile=async(req,res)=>{
+ try{
+    const user=req.user;
+    if(!user){
+      return res.status(400).json({message:"user does not exist"});
+    }
+    return res.status(200).json({
+      message:"user data fetched successfully",
+      user
+    })
+ }catch(error){
+    console.log(error);
+    return res.status(400).json({
+        message:"get current user error"
+    })
+ }
+}
+
+const enrollUser=async(req,res)=>{
+    try{
+        const userId=req.user._id;
+        const {hackathonId}=req.body;
+        if(!userId || !hackathonId){
+            return res.status(404).json({
+                message:"all fields are required"
+            })
+        }
+        const finduser=await userModel.findById(userId)
+        if(!finduser){
+            return res.status(404).json({
+                message:"user not found with the give userid"
+            })
+        }
+        const hackathon=await HackathonModel.findByIdAndUpdate(hackathonId,
+            {$push:{participants:userId}},
+            {new:true}
+        )
+        if(!hackathon){
+            return res.status(404).json({
+                message:"hackathon not found"
+            })
+        }
+        const user=await userAddDetailsModel.findOneAndUpdate(
+            {userId},
+            {$push:{hackathons:hackathonId}},
+            {new:true}
+        )
+         if(!user){
+            return res.status(404).json({
+                message:"user not found"
+            })
+        }
+        return res.status(200).json({
+        message: "User enrolled in hackathon successfully",
+        user,
+        hackathon
+        });
+
+
+    }catch(error){
+       console.log(error);
+       return res.status(404).json({
+        message:"error while registering in the hackathon"
+       })
+    }
+}
+
+const unregisterUser = async (req, res) => {
+  try {
+     const userId=req.user._id;
+    const { hackathonId } = req.body;
+
+    if (!userId || !hackathonId) {
+      return res.status(400).json({
+        message: "userId and hackathonId are required"
+      });
+    }
+
+    const findUser = await userModel.findById(userId);
+    if (!findUser) {
+      return res.status(404).json({
+        message: "User not found with the given userId"
+      });
+    }
+
+    const hackathon = await HackathonModel.findByIdAndUpdate(
+      hackathonId,
+      { $pull: { participants: userId } },
+      { new: true }
+    );
+    if (!hackathon) {
+      return res.status(404).json({
+        message: "Hackathon not found"
+      });
+    }
+
+    const user = await userAddDetailsModel.findOneAndUpdate(
+      { userId },
+      { $pull: { hackathons: hackathonId } },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).json({
+        message: "User details not found"
+      });
+    }
+
+    return res.status(200).json({
+      message: "User unregistered from hackathon successfully",
+      user,
+      hackathon
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Error while unregistering from the hackathon"
+    });
+  }
+};
+
+
+module.exports={signup,login,enrollUser,unregisterUser,getUserProfile};

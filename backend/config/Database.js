@@ -1,11 +1,11 @@
 
-const mongoose=reqiure("mongoose");
+const mongoose=require("mongoose");
 const dotenv=require('dotenv');
 dotenv.config();
 
 function connectDB(){
     try{
-        mongoose.connrect(process.env.MONGODB_URL,
+        mongoose.connect(process.env.MONGODB_URL,
             console.log("connected to database successfully")
         )
 

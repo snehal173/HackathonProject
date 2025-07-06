@@ -16,20 +16,15 @@ const OrgSchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    profileImage:{
-        type:String,
+    token:{
+        type: String
     },
-    description:{
-        type:String,
-        default:""
-    },
-    hackathons:[
-        {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:'Hackathon'
-        }
-    ]
-})
+    resetPasswordExpires:{
+        type: Date
+    }
+   
+   
+},{timestamps:true})
 
 const OrganisationModel=mongoose.model("Organisation",OrgSchema);
 module.exports=OrganisationModel
